@@ -1,4 +1,27 @@
 jsonToFs
 ========
 
-Buildsa  directory and file structure based as defined in a json, or generates a json based on an existing directory's contents
+Builds a directory and file structure as defined in a json, or generates a json based on an existing directory's contents
+
+
+## API
+
+### jsonToFs(root, obj)
+
+Converts a javascript object into a directory structure
+
+* `root` [String]  - directory within which to create the files and directories, relative to the current working directory. This directory must already exist and will have all its contents deleted before the new contents are generated
+* `obj` [Object] - Nested javascript object specifying the files and directories to be created e.g.
+    
+        {
+            'file1.js': 'file1.js will be created with this string as its content',
+            'sub': { // creates a subdirectory
+            	'file2.js': 'Can you guess what the content of this file will be?'
+            }
+        }
+        
+### fsToJson(root)
+
+Reads the contents of a directory into a javascript object
+
+* `root` [String]  - directory within which to read the files and directories, relative to the current working directory.
