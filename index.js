@@ -12,6 +12,7 @@ var deleteFolderRecursive = function(path, preserveList) {
 				var curPath = path + '/' + file;
 				if(fs.lstatSync(curPath).isDirectory()) { // recurse
 					deleteFolderRecursive(curPath, preserveList);
+					fs.rmdirSync(curPath);
 				} else { // delete file
 					fs.unlinkSync(curPath);
 				}
