@@ -1,20 +1,22 @@
 var path = require('path');
 var fs = require('fs');
 
-var deleteFolderRecursive = function(path, notRoot) {
+var absolutePath = function (relativePath) {
+	return path.join(process.cwd(), relativePath);
+};
 
+var deleteFolderRecursive = function(path, preserveList) {
 	if(fs.existsSync(path) ) {
 		fs.readdirSync(path).forEach(function(file,index){
-			var curPath = path + '/' + file;
-			if(fs.lstatSync(curPath).isDirectory()) { // recurse
-				deleteFolderRecursive(curPath);
-			} else { // delete file
-				fs.unlinkSync(curPath);
+			if (preserveList.indexOf(absolutePath(file)) < 0) {
+				var curPath = path + '/' + file;
+				if(fs.lstatSync(curPath).isDirectory()) { // recurse
+					deleteFolderRecursive(curPath, preserveList);
+				} else { // delete file
+					fs.unlinkSync(curPath);
+				}
 			}
 		});
-		if (!notRoot) {
-			fs.rmdirSync(path);
-		}
 	}
 };
 
@@ -30,32 +32,39 @@ function jsonToFs(root, obj) {
 	});
 }
 
-function fsToJson(root) {
+function fsToJson(root, ignoreList) {
 	var obj = {};
 
 	fs.readdirSync(root).forEach(function(file){
-		var curPath = root + '/' + file;
-		if(fs.lstatSync(curPath).isDirectory()) {
-			obj[file] = fsToJson(curPath);
-		} else {
-			obj[file] = fs.readFileSync(curPath, 'utf8');
+		if (ignoreList.indexOf(absolutePath(file))  < 0) {
+			var curPath = root + '/' + file;
+			if(fs.lstatSync(curPath).isDirectory()) {
+				obj[file] = fsToJson(curPath, ignoreList);
+			} else {
+				obj[file] = fs.readFileSync(curPath, 'utf8');
+			}
 		}
 	});
 	return obj;
 }
 
 module.exports = {
-	jsonToFs: function (root, obj) {
+	jsonToFs: function (root, obj, preserveList) {
+		preserveList = preserveList || [];
 
-		root = path.join(process.cwd(), root);
+		preserveList = preserveList.map(absolutePath);
+		root = absolutePath(root);
 
-		deleteFolderRecursive(root, true);
+		deleteFolderRecursive(root, preserveList);
 
 		jsonToFs(root, obj);
 	},
-	fsToJson: function (root) {
-		root = path.join(process.cwd(), root);
-		return fsToJson(root);
+	fsToJson: function (root, ignoreList) {
+		ignoreList = ignoreList || [];
+
+		ignoreList = ignoreList.map(absolutePath);
+		root = absolutePath(root);
+		return fsToJson(root, ignoreList);
 	}
 
 };
