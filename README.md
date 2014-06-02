@@ -6,7 +6,7 @@ Builds a directory and file structure as defined in a json, or generates a json 
 
 ## API
 
-### jsonToFs(root, obj)
+### jsonToFs(root, obj, preserveList)
 
 Converts a javascript object into a directory structure
 
@@ -19,9 +19,11 @@ Converts a javascript object into a directory structure
             	'file2.js': 'Can you guess what the content of this file will be?'
             }
         }
+* `preserveList` [Array]: An array of relative paths not to delete when running the initial clean out of the target directory
         
-### fsToJson(root)
+### fsToJson(root, ignoreList)
 
 Reads the contents of a directory into a javascript object
 
 * `root` [String]  - directory within which to read the files and directories, relative to the current working directory.
+* `ignoreList` [Array]: An array of relative paths to ignore when returning the json of teh directory's contents
